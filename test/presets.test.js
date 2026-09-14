@@ -19,6 +19,14 @@ function isGreyTextOnly(style) {
 	return style && style.color === colors.grey && style.bgcolor === undefined
 }
 
+/**
+ * Keys whose text carries a device-provided name or event title (recorder, stream, bookmark, the two CMS
+ * status keys): no icon, Companion sizes the text -- the Streaming recipe (QA 2026-09-14).
+ */
+function isNamedKey(id, preset) {
+	return ['Recording', 'Streaming', 'Bookmarks'].includes(preset.category) || /^cms_events_status_/.test(id)
+}
+
 function hexToComponents(hex) {
 	const n = parseInt(hex.slice(1), 16)
 	return { r: (n >> 16) & 0xff, g: (n >> 8) & 0xff, b: n & 0xff, a: 1 }
@@ -176,28 +184,21 @@ describe('presets', () => {
 		for (const [id, preset] of Object.entries(presets)) {
 			assert.equal(preset.style.bgcolor, colors.bg, `${id}: rest bgcolor`)
 			assert.equal(preset.style.color, id === 'cms_events_stop' ? colors.red : colors.text, `${id}: rest color`)
-			assert.equal(preset.style.png64, ICONS[categoryIcon[preset.category]], `${id}: category icon`)
-			assert.equal(
-				preset.style.pngalignment,
-				categoryIcon[preset.category] ? 'center:top' : undefined,
-				`${id}: pngalignment`,
-			)
+			const icon = isNamedKey(id, preset) ? undefined : ICONS[categoryIcon[preset.category]]
+			assert.equal(preset.style.png64, icon, `${id}: category icon`)
+			assert.equal(preset.style.pngalignment, icon ? 'center:top' : undefined, `${id}: pngalignment`)
 			assert.equal(preset.style.alignment, 'center:bottom', `${id}: alignment`)
 		}
 	})
 
-	it('text sizes follow the reference page: 16 on CMS status keys, 22 on Single touch, auto on stream keys, 20 elsewhere; top bar hidden', () => {
+	it('text sizes follow one rule: 14 with the icon (at most three lines), auto on named keys, 22 on Single touch; top bar hidden', () => {
 		for (const [id, preset] of Object.entries(presets)) {
 			assert.equal(preset.style.show_topbar, false, `${id}: top bar`)
-			const expected =
-				preset.category === 'Streaming'
-					? 'auto'
-					: /^cms_events_status_/.test(id)
-						? 16
-						: preset.category === 'Single touch'
-							? 22
-							: 20
+			const expected = isNamedKey(id, preset) ? 'auto' : preset.category === 'Single touch' ? 22 : 14
 			assert.equal(preset.style.size, expected, `${id}: text size`)
+			if (preset.style.png64) {
+				assert.ok(preset.style.text.split('\n').length <= 3, `${id}: at most three lines below the icon`)
+			}
 		}
 	})
 
@@ -226,7 +227,13 @@ describe('presets', () => {
 		assert.equal(presets['streaming_toggle_1-0'].style.png64, undefined, 'stream keys have no icon')
 		const channel = instance.state.channels['1']
 		const layout = Object.values(channel.layouts)[0]
-		assert.equal(presets[`layouts_1_${layout.id}`].style.text, `${layout.name} ${channel.name}`)
+		assert.equal(presets[`layouts_1_${layout.id}`].style.text, `${layout.name}\n${channel.name}`)
+		const configPreset = Object.values(presets).find((p) => p.category === 'Configuration presets')
+		assert.match(
+			configPreset.style.text,
+			/^[^\n]+\n\$\(pearl:preset_status\)$/,
+			'configuration preset: name over status, no Apply line (the star icon says apply)',
+		)
 	})
 
 	it('no Outputs or Audio presets, and no button for the maintenance storage', () => {

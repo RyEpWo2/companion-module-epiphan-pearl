@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [3.0.0] (2026-09-13)
+## [3.0.0] (2026-09-14)
 
 Companion parity rewrite: the module's control set is now exactly the one offered by the sibling **Epiphan
 Pearl** Stream Deck plugin — same 13 actions (by Stream Deck action suffix), same feedback/variable ids
@@ -71,10 +71,15 @@ buttons**: read "Upgrade notes" below before updating a production connection.
 
 ### Changed
 
-- **Presets standardised on the operator's reference page** (2026-09-11): text size 20 everywhere except
-  16 on the CMS status keys and the stream keys (three lines each) and 22 on the Single touch summary,
-  which now stands alone without an icon; stream keys read channel name / stream name (or `All Streams`) / state, auto-sized and without the category icon so the state line survives long channel names; bookmark keys read channel name / Bookmark; layout keys read `<layout> <channel>`;
-  the CMS command keys read the verb alone, with Stop in red.
+- **Preset text follows one rule** (operator's reference page 2026-09-11, QA 2026-09-14): a key with the
+  category icon uses text size 14 and at most three short lines below the glyph, the budget the Stream Deck
+  plugin and the EC20 module use, so text never runs into the icon; a key whose text carries a
+  device-provided name or event title (recorder, stream, bookmark and the two CMS status keys) carries no
+  icon and lets Companion size the text, so a long name never hides the state line; the Single touch
+  summary stands alone at 22. Stream keys read channel name / stream name (or `All Streams`) / state;
+  bookmark keys channel name / Bookmark; layout keys `<layout>` over `<channel>` on the live picture;
+  configuration-preset keys the preset's name over its status (the star icon says apply); the CMS command
+  keys the verb alone, with Stop in red.
 - **Outputs and Audio are no longer preset groups.** Their actions, feedbacks and variables stay for
   hand-built buttons. The Storage group skips the Pearl's internal maintenance partition.
 - **Streaming and Recording toggles recover from an error state** (QA 2026-09-08: a publisher whose

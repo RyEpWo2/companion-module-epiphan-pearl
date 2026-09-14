@@ -48,10 +48,9 @@ const PRESET_CATEGORY_IDS = [
 ]
 
 /**
- * Category -> the icons.js key drawn at the top of every preset in that category. Single touch and
- * Streaming have none: the Single touch summary (reference page, 2026-09-11) and the stream keys' three
- * lines (channel / stream / state; a channel name alone can wrap) need the whole key -- with an icon in
- * the way Companion drops the last line, and on a stream key that is the state word.
+ * Category -> the icons.js key drawn at the top of a preset in that category, unless the preset is
+ * `named` (see button()). Single touch and Streaming have none: the Single touch summary (reference page,
+ * 2026-09-11) stands alone, and every stream key is named.
  */
 const CATEGORY_ICON = {
 	[CAT_RECORDING]: 'recorder',
@@ -108,24 +107,39 @@ function v(variableId) {
  * the stream keys (channel / stream / state, see there), which need `auto` so the state line survives
  * long channel names. Device-named things wrap as Companion sees fit.
  */
-const TEXT_SIZE = 20
-const TEXT_SIZE_STATUS = 16
+/**
+ * Text size of every key that carries the category icon: the Stream Deck plugin's own budget (the EC20
+ * module uses the same), at most three lines of about ten characters below the glyph. Larger sizes leave
+ * room for two lines of six characters under the icon, and nothing on these keys is that short (QA
+ * 2026-09-14: "Recorders", "Resume" and "Shut down" all wrapped into the icon).
+ */
+const TEXT_SIZE_ICON = 14
+/** the Single touch summary stands alone on its key, no icon (reference page, 2026-09-11) */
 const TEXT_SIZE_SUMMARY = 22
 
 /**
  * Build a standard button preset in the Stream Deck plugin's key layout, expressed with Companion's
- * own renderer: `restStyle()` (dark bg, light text) at rest, the category's icon at the top (each
- * src/icons.js glyph is drawn small in the top third of its 72x72 canvas; `pngalignment: 'center:top'`),
- * the text at the bottom (`alignment: 'center:bottom'`, `size`), and no top bar so the whole 72x72 key
- * is available as on the plugin's keys — every category except Single touch has a matching icons.js
- * entry. `feedbacks[].style` is what changes a button's colour; the only rest-state override here is
- * `color` (the red Stop of the CMS group).
+ * own renderer: `restStyle()` (dark bg, light text) at rest, the text at the bottom
+ * (`alignment: 'center:bottom'`), no top bar so the whole 72x72 key is available as on the plugin's keys,
+ * and one of two text recipes. Companion draws the icon and the text as two layers that know nothing of
+ * each other (module base 1.12 has no text box), so the recipe decides whether they can collide:
+ *
+ * - a key with the category icon (each src/icons.js glyph is drawn small in the top third of its 72x72
+ *   canvas; `pngalignment: 'center:top'`) uses TEXT_SIZE_ICON and at most three template lines, so the
+ *   text stays below the glyph;
+ * - a `named` key -- its text carries a device-provided name or event title, which wraps at any fixed
+ *   size -- carries no icon and lets Companion size the text (`size: 'auto'`), so a long name never
+ *   hides the state line. On Previews and Layouts the live picture replaces the icon.
+ *
+ * `feedbacks[].style` is what changes a button's colour; the only rest-state override here is `color`
+ * (the red Stop of the CMS group).
  *
  * @param {object} def
  * @param {string} def.category
  * @param {string} def.name
  * @param {string} def.text
- * @param {number} [def.size=TEXT_SIZE] text size (TEXT_SIZE_STATUS / TEXT_SIZE_SUMMARY for the exceptions)
+ * @param {boolean} [def.named=false] the text carries a device-provided name or title: no icon, auto size
+ * @param {number|'auto'} [def.size] text size override (TEXT_SIZE_SUMMARY on the Single touch summary)
  * @param {number} [def.color] text colour at rest, when not the palette text colour
  * @param {Array<{actionId: string, options: object}>} [def.actions=[]] down actions (Pearl has no
  *   hold-to-move motion actions — D3 is EC20-only — so every Pearl preset's `up` step is empty)
@@ -134,10 +148,16 @@ const TEXT_SIZE_SUMMARY = 22
  *   `options.rotaryActions` and the `rotate_left`/`rotate_right` step arrays alongside `down`
  * @returns {object} preset definition
  */
-function button({ category, name, text, size = TEXT_SIZE, color, actions = [], feedbacks = [], rotary = null }) {
-	const style = { text, size, show_topbar: false, alignment: 'center:bottom', ...restStyle() }
+function button({ category, name, text, named = false, size, color, actions = [], feedbacks = [], rotary = null }) {
+	const icon = named ? undefined : ICONS[CATEGORY_ICON[category]]
+	const style = {
+		text,
+		size: size ?? (icon ? TEXT_SIZE_ICON : 'auto'),
+		show_topbar: false,
+		alignment: 'center:bottom',
+		...restStyle(),
+	}
 	if (color !== undefined) style.color = color
-	const icon = ICONS[CATEGORY_ICON[category]]
 	if (icon) {
 		style.png64 = icon
 		style.pngalignment = 'center:top'
@@ -207,6 +227,7 @@ module.exports = {
 					category: CAT_RECORDING,
 					name: `${recorder.label} toggle`,
 					text,
+					named: true,
 					actions: [{ actionId: 'recorder', options: { recorderId: recorder.id, op: 'toggle' } }],
 					feedbacks: [
 						{
@@ -246,10 +267,8 @@ module.exports = {
 					? `channel_${safeId(pair[0])}_publishers_state_word`
 					: `channel_${safeId(pair?.[0] ?? '')}_publisher_${safeId(pair?.[1] ?? '')}_state_word`
 			// channel name, then the stream's own name (or "All Streams"), then the state (reference page,
-			// 2026-09-11); names are variables so a rename follows. Companion sizes this text itself: a channel
-			// name alone can wrap, and at any fixed size four lines overflow the key and Companion drops the last
-			// one -- the state word, the line that matters -- so this is the one preset that uses `auto`, with
-			// no icon so the text has the whole key
+			// 2026-09-11); names are variables so a rename follows. A named key: no icon, Companion sizes the
+			// text, so the state word survives a long channel name
 			const cid = safeId(pair?.[0] ?? '')
 			const streamLine = isAll ? 'All Streams' : v(`channel_${cid}_publisher_${safeId(pair?.[1] ?? '')}_name`)
 			add(
@@ -258,7 +277,7 @@ module.exports = {
 					category: CAT_STREAMING,
 					name: `${publisher.label} toggle`,
 					text: `${v(`channel_${cid}_name`)}\n${streamLine}\n${v(stateWordVar)}`,
-					size: 'auto',
+					named: true,
 					actions: [
 						{
 							actionId: 'stream',
@@ -292,7 +311,8 @@ module.exports = {
 		}
 
 		// ---------------------------------------------------------------------
-		// Layouts: one switch button per layout, "<layout name> <channel name>" (reference page, 2026-09-11)
+		// Layouts: one switch button per layout, layout name over channel name (reference page, 2026-09-11):
+		// two short lines at the bottom of the live picture instead of one wrapped by Companion (QA 2026-09-14)
 		// ---------------------------------------------------------------------
 
 		for (const channel of Object.values(this.state?.channels || {})) {
@@ -303,7 +323,7 @@ module.exports = {
 					button({
 						category: CAT_LAYOUTS,
 						name: `${channel.name ?? channel.id} – ${layout.name ?? layout.id}`,
-						text: `${layout.name ?? layout.id} ${channel.name ?? channel.id}`,
+						text: `${layout.name ?? layout.id}\n${channel.name ?? channel.id}`,
 						actions: [
 							{
 								actionId: 'layout',
@@ -359,6 +379,7 @@ module.exports = {
 					category: CAT_BOOKMARKS,
 					name: `Bookmark ${channel.label}`,
 					text: `${v(`channel_${safeId(channel.id)}_name`)}\nBookmark`,
+					named: true,
 					actions: [
 						{ actionId: 'bookmark', options: { channelId: channel.id, text: 'Marker', appendTime: false } },
 					],
@@ -423,9 +444,10 @@ module.exports = {
 				button({
 					category: CAT_CONFIG_PRESETS,
 					name: `Apply ${preset.label}`,
-					// preset_status ("Rebooting..." after a reboot-reporting apply) on the last line; the confirm
-					// hint is the confirm_pending feedback's own text, so it shows on the armed button only
-					text: `Apply\n${preset.id}\n${v('preset_status')}`,
+					// the preset's name (the star icon and the preset name say apply; a third line would run into the
+					// icon, QA 2026-09-14), then preset_status ("Rebooting..." after a reboot-reporting apply); the
+					// confirm hint is the confirm_pending feedback's own text, so it shows on the armed button only
+					text: `${preset.id}\n${v('preset_status')}`,
 					actions: [{ actionId: 'preset', options: { presetName: preset.id, sections: [], confirm: true } }],
 					feedbacks: [{ feedbackId: 'confirm_pending', options: {}, style: confirmStyle() }],
 				}),
@@ -434,7 +456,8 @@ module.exports = {
 
 		// ---------------------------------------------------------------------
 		// CMS events (schedule): the two status keys and the toggle show live variables, the fixed commands
-		// read as the verb alone (reference page, 2026-09-11)
+		// read as the verb alone (reference page, 2026-09-11). The status keys are named: an event title wraps
+		// at any fixed size
 		// ---------------------------------------------------------------------
 
 		add(
@@ -443,7 +466,7 @@ module.exports = {
 				category: CAT_CMS_EVENTS,
 				name: 'Ongoing event status',
 				text: `${v('event_ongoing_title')}\n${v('event_ongoing_time_text')}`,
-				size: TEXT_SIZE_STATUS,
+				named: true,
 				feedbacks: [
 					{
 						feedbackId: 'event_state',
@@ -469,7 +492,7 @@ module.exports = {
 				category: CAT_CMS_EVENTS,
 				name: 'Upcoming event status',
 				text: `${v('event_upcoming_title')}\n${v('event_upcoming_time_text')}`,
-				size: TEXT_SIZE_STATUS,
+				named: true,
 				feedbacks: [
 					{
 						feedbackId: 'event_state',

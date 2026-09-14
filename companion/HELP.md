@@ -415,12 +415,14 @@ Presets are generated from what the Pearl reports, so they appear after the firs
 categories actually get generated is controlled by _Preset categories to generate_ (see Connection settings
 above); all of them are on by default.
 
-Every button follows the Stream Deck plugin's key layout, drawn with Companion's own renderer: the
-category's icon small at the top, the text at the bottom (size 20; 16 on the CMS status keys; 22 on the Single touch summary; sized
-automatically on the stream keys so channel, stream and state all stay visible; the Single touch and stream
-keys carry no icon), a
-dark background with light text, no top bar, and the state colour filling the background when a feedback
-is true. Labels and text size stay editable like any Companion button.
+Every button follows the Stream Deck plugin's key layout, drawn with Companion's own renderer: a dark
+background with light text, no top bar, the state colour filling the background when a feedback is true,
+and one of two text recipes. A key with the category icon (small, at the top) puts at most three short lines
+of size 14 text below it, the plugin's own budget. A key whose text is a device-provided name or event
+title (recorder, stream, bookmark and the two CMS status keys) carries no icon and lets Companion size the
+text, so a long name never hides the state line. The Single touch summary stands alone at size 22, and on
+the Previews and Layouts keys the live picture replaces the icon. Labels and text size stay editable like
+any Companion button.
 
 | Category                  | Buttons                                                                           |
 | ------------------------- | --------------------------------------------------------------------------------- |
