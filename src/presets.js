@@ -108,28 +108,31 @@ function v(variableId) {
  * long channel names. Device-named things wrap as Companion sees fit.
  */
 /**
- * Text size of every key that carries the category icon: the Stream Deck plugin's own budget (the EC20
- * module uses the same), at most three lines of about ten characters below the glyph. Larger sizes leave
- * room for two lines of six characters under the icon, and nothing on these keys is that short (QA
- * 2026-09-14: "Recorders", "Resume" and "Shut down" all wrapped into the icon).
+ * Text size of every key but the Single touch summary: the Stream Deck plugin's own budget (the EC20
+ * module uses the same), about ten characters per line, at most three lines below an icon. It is the
+ * largest size at which every fixed word of the module ("Recorders", "scheduled", "Bookmark") still fits
+ * on one line; at 16 and above Companion breaks them mid-word, and under an icon anything past two
+ * six-character lines climbs into the glyph (QA 2026-09-14). `auto` is no alternative: Companion picks
+ * it by height alone and char-breaks words on short texts ("Bookm/ark").
  */
-const TEXT_SIZE_ICON = 14
+const TEXT_SIZE = 14
 /** the Single touch summary stands alone on its key, no icon (reference page, 2026-09-11) */
 const TEXT_SIZE_SUMMARY = 22
 
 /**
  * Build a standard button preset in the Stream Deck plugin's key layout, expressed with Companion's
- * own renderer: `restStyle()` (dark bg, light text) at rest, the text at the bottom
- * (`alignment: 'center:bottom'`), no top bar so the whole 72x72 key is available as on the plugin's keys,
- * and one of two text recipes. Companion draws the icon and the text as two layers that know nothing of
- * each other (module base 1.12 has no text box), so the recipe decides whether they can collide:
+ * own renderer: `restStyle()` (dark bg, light text) at rest, TEXT_SIZE text, no top bar so the whole
+ * 72x72 key is available as on the plugin's keys, and one of two layouts. Companion draws the icon and
+ * the text as two layers that know nothing of each other (module base 1.12 has no text box), so the
+ * layout decides whether they can collide:
  *
  * - a key with the category icon (each src/icons.js glyph is drawn small in the top third of its 72x72
- *   canvas; `pngalignment: 'center:top'`) uses TEXT_SIZE_ICON and at most three template lines, so the
- *   text stays below the glyph;
- * - a `named` key -- its text carries a device-provided name or event title, which wraps at any fixed
- *   size -- carries no icon and lets Companion size the text (`size: 'auto'`), so a long name never
- *   hides the state line. On Previews and Layouts the live picture replaces the icon.
+ *   canvas; `pngalignment: 'center:top'`) puts at most three template lines at the bottom
+ *   (`alignment: 'center:bottom'`), so the text stays below the glyph;
+ * - a `named` key -- its text carries a device-provided name or event title, which wraps however short
+ *   the template is -- carries no icon and centres the text, so the whole key is there for the wrapped
+ *   lines and a long name never hides the state line. On Previews and Layouts the live picture replaces
+ *   the icon.
  *
  * `feedbacks[].style` is what changes a button's colour; the only rest-state override here is `color`
  * (the red Stop of the CMS group).
@@ -138,8 +141,8 @@ const TEXT_SIZE_SUMMARY = 22
  * @param {string} def.category
  * @param {string} def.name
  * @param {string} def.text
- * @param {boolean} [def.named=false] the text carries a device-provided name or title: no icon, auto size
- * @param {number|'auto'} [def.size] text size override (TEXT_SIZE_SUMMARY on the Single touch summary)
+ * @param {boolean} [def.named=false] the text carries a device-provided name or title: no icon, centred
+ * @param {number} [def.size=TEXT_SIZE] text size (TEXT_SIZE_SUMMARY on the Single touch summary)
  * @param {number} [def.color] text colour at rest, when not the palette text colour
  * @param {Array<{actionId: string, options: object}>} [def.actions=[]] down actions (Pearl has no
  *   hold-to-move motion actions — D3 is EC20-only — so every Pearl preset's `up` step is empty)
@@ -152,9 +155,9 @@ function button({ category, name, text, named = false, size, color, actions = []
 	const icon = named ? undefined : ICONS[CATEGORY_ICON[category]]
 	const style = {
 		text,
-		size: size ?? (icon ? TEXT_SIZE_ICON : 'auto'),
+		size: size ?? TEXT_SIZE,
 		show_topbar: false,
-		alignment: 'center:bottom',
+		alignment: icon ? 'center:bottom' : 'center:center',
 		...restStyle(),
 	}
 	if (color !== undefined) style.color = color
@@ -267,8 +270,8 @@ module.exports = {
 					? `channel_${safeId(pair[0])}_publishers_state_word`
 					: `channel_${safeId(pair?.[0] ?? '')}_publisher_${safeId(pair?.[1] ?? '')}_state_word`
 			// channel name, then the stream's own name (or "All Streams"), then the state (reference page,
-			// 2026-09-11); names are variables so a rename follows. A named key: no icon, Companion sizes the
-			// text, so the state word survives a long channel name
+			// 2026-09-11); names are variables so a rename follows. A named key: no icon, so the whole key is there
+			// for the wrapped lines and the state word survives a long channel name
 			const cid = safeId(pair?.[0] ?? '')
 			const streamLine = isAll ? 'All Streams' : v(`channel_${cid}_publisher_${safeId(pair?.[1] ?? '')}_name`)
 			add(
@@ -456,8 +459,8 @@ module.exports = {
 
 		// ---------------------------------------------------------------------
 		// CMS events (schedule): the two status keys and the toggle show live variables, the fixed commands
-		// read as the verb alone (reference page, 2026-09-11). The status keys are named: an event title wraps
-		// at any fixed size
+		// read as the verb alone (reference page, 2026-09-11). The status keys are named: an event title needs
+		// the whole key
 		// ---------------------------------------------------------------------
 
 		add(

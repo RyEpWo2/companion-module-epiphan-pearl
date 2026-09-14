@@ -419,8 +419,9 @@ Every button follows the Stream Deck plugin's key layout, drawn with Companion's
 background with light text, no top bar, the state colour filling the background when a feedback is true,
 and one of two text recipes. A key with the category icon (small, at the top) puts at most three short lines
 of size 14 text below it, the plugin's own budget. A key whose text is a device-provided name or event
-title (recorder, stream, bookmark and the two CMS status keys) carries no icon and lets Companion size the
-text, so a long name never hides the state line. The Single touch summary stands alone at size 22, and on
+title (recorder, stream, bookmark and the two CMS status keys) carries no icon and centres its text, so
+the whole key is there for the wrapped lines and a long name never hides the state line. The Single touch
+summary stands alone at size 22, and on
 the Previews and Layouts keys the live picture replaces the icon. Labels and text size stay editable like
 any Companion button.
 

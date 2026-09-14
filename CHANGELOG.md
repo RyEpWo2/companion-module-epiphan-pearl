@@ -75,8 +75,10 @@ buttons**: read "Upgrade notes" below before updating a production connection.
   category icon uses text size 14 and at most three short lines below the glyph, the budget the Stream Deck
   plugin and the EC20 module use, so text never runs into the icon; a key whose text carries a
   device-provided name or event title (recorder, stream, bookmark and the two CMS status keys) carries no
-  icon and lets Companion size the text, so a long name never hides the state line; the Single touch
-  summary stands alone at 22. Stream keys read channel name / stream name (or `All Streams`) / state;
+  icon and centres its text, so the whole key is there for the wrapped lines and a long name never hides
+  the state line (`auto` sizing is not used anywhere: Companion picks it by height and breaks short words
+  mid-word); the Single touch summary stands alone at 22. Stream keys read channel name / stream name (or
+  `All Streams`) / state;
   bookmark keys channel name / Bookmark; layout keys `<layout>` over `<channel>` on the live picture;
   configuration-preset keys the preset's name over its status (the star icon says apply); the CMS command
   keys the verb alone, with Stop in red.

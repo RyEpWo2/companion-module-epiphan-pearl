@@ -21,7 +21,7 @@ function isGreyTextOnly(style) {
 
 /**
  * Keys whose text carries a device-provided name or event title (recorder, stream, bookmark, the two CMS
- * status keys): no icon, Companion sizes the text -- the Streaming recipe (QA 2026-09-14).
+ * status keys): no icon and centred text, so the whole key is there for the wrapped lines (QA 2026-09-14).
  */
 function isNamedKey(id, preset) {
 	return ['Recording', 'Streaming', 'Bookmarks'].includes(preset.category) || /^cms_events_status_/.test(id)
@@ -187,14 +187,18 @@ describe('presets', () => {
 			const icon = isNamedKey(id, preset) ? undefined : ICONS[categoryIcon[preset.category]]
 			assert.equal(preset.style.png64, icon, `${id}: category icon`)
 			assert.equal(preset.style.pngalignment, icon ? 'center:top' : undefined, `${id}: pngalignment`)
-			assert.equal(preset.style.alignment, 'center:bottom', `${id}: alignment`)
+			assert.equal(
+				preset.style.alignment,
+				icon ? 'center:bottom' : 'center:center',
+				`${id}: text below the icon, centred without one`,
+			)
 		}
 	})
 
-	it('text sizes follow one rule: 14 with the icon (at most three lines), auto on named keys, 22 on Single touch; top bar hidden', () => {
+	it('text size 14 everywhere but the Single touch summary (22), at most three lines under an icon; top bar hidden', () => {
 		for (const [id, preset] of Object.entries(presets)) {
 			assert.equal(preset.style.show_topbar, false, `${id}: top bar`)
-			const expected = isNamedKey(id, preset) ? 'auto' : preset.category === 'Single touch' ? 22 : 14
+			const expected = preset.category === 'Single touch' ? 22 : 14
 			assert.equal(preset.style.size, expected, `${id}: text size`)
 			if (preset.style.png64) {
 				assert.ok(preset.style.text.split('\n').length <= 3, `${id}: at most three lines below the icon`)
