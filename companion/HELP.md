@@ -204,8 +204,8 @@ carries it, so a refused command is visible on the key and not only in Companion
 **Variables**: `preset_names` (comma-separated), `preset_last_applied` (optimistic), `preset_status`
 (`Rebooting…` for 60 s when the device reports a reboot).
 
-**Presets — Configuration presets**: one button per device preset, text `Apply` / preset name / the confirm
-hint or `Rebooting…`; red while confirm is armed.
+**Presets — Configuration presets**: one button per device preset, text preset name / `Rebooting…` after a
+reboot-reporting apply, no icon (device preset names are long); `Press again` in red while confirm is armed.
 
 #### Event
 
@@ -417,27 +417,26 @@ above); all of them are on by default.
 
 Every button follows the Stream Deck plugin's key layout, drawn with Companion's own renderer: a dark
 background with light text, no top bar, the state colour filling the background when a feedback is true,
-and one of two text recipes. A key with the category icon (small, at the top) puts at most three short lines
+and one of two text recipes. A key with the category icon (small, at the top) puts at most two short lines
 of size 14 text below it, the plugin's own budget. A key whose text is a device-provided name or event
-title (recorder, stream, bookmark and the two CMS status keys) carries no icon and centres its text, so
-the whole key is there for the wrapped lines and a long name never hides the state line. The Single touch
-summary stands alone at size 22, and on
-the Previews and Layouts keys the live picture replaces the icon. Labels and text size stay editable like
-any Companion button.
+title (recorder, stream, bookmark, configuration preset, the two CMS status keys and the CPU key) carries
+no icon and centres its text, so the whole key is there for the wrapped lines and a long name never hides
+the state line. The Single touch summary stands alone at size 22, and on the Previews and Layouts keys the
+live picture replaces the icon. Labels and text size stay editable like any Companion button.
 
-| Category                  | Buttons                                                                           |
-| ------------------------- | --------------------------------------------------------------------------------- |
-| **Recording**             | Toggle per recorder, plus "All recorders".                                        |
-| **Streaming**             | Toggle per stream (channel, stream name, state), plus "All Streams" per channel.  |
-| **Layouts**               | Switch button per layout, live preview image.                                     |
-| **Single touch**          | Toggle per control.                                                               |
-| **Bookmarks**             | One button per channel (channel name / Bookmark), greyed out while not recording. |
-| **Previews**              | Live thumbnail per channel, video-capable input and output.                       |
-| **Configuration presets** | Apply button per device preset, confirm-gated.                                    |
-| **CMS events**            | Ongoing/upcoming status, toggle, start/stop/pause/resume, extend +5:00.           |
-| **System**                | CPU load/status, AFU status, device info.                                         |
-| **Power**                 | Reboot, Shut down; both confirm-gated.                                            |
-| **Storage**               | Status + eject per storage, confirm-gated.                                        |
+| Category                  | Buttons                                                                            |
+| ------------------------- | ---------------------------------------------------------------------------------- |
+| **Recording**             | Toggle per recorder, plus "All recorders".                                         |
+| **Streaming**             | Toggle per stream (channel, stream name, state), plus a "Streams" key per channel. |
+| **Layouts**               | Switch button per layout, live preview image.                                      |
+| **Single touch**          | Toggle per control.                                                                |
+| **Bookmarks**             | One button per channel (channel name / Bookmark), greyed out while not recording.  |
+| **Previews**              | Live thumbnail per channel, video-capable input and output.                        |
+| **Configuration presets** | Apply button per device preset, confirm-gated.                                     |
+| **CMS events**            | Ongoing/upcoming status, toggle, start/stop/pause/resume, extend +5:00.            |
+| **System**                | CPU load/status, AFU status, device info.                                          |
+| **Power**                 | Reboot, Shut down; both confirm-gated.                                             |
+| **Storage**               | Status + eject per storage, confirm-gated.                                         |
 
 ### Tips
 

@@ -20,11 +20,16 @@ function isGreyTextOnly(style) {
 }
 
 /**
- * Keys whose text carries a device-provided name or event title (recorder, stream, bookmark, the two CMS
- * status keys): no icon and centred text, so the whole key is there for the wrapped lines (QA 2026-09-14).
+ * Keys whose text carries a device-provided name or event title (recorder, stream, bookmark, configuration
+ * preset, the two CMS status keys and the CPU key): no icon and centred text, so the whole key is there for
+ * the wrapped lines (QA 2026-09-14).
  */
 function isNamedKey(id, preset) {
-	return ['Recording', 'Streaming', 'Bookmarks'].includes(preset.category) || /^cms_events_status_/.test(id)
+	return (
+		['Recording', 'Streaming', 'Bookmarks', 'Configuration presets'].includes(preset.category) ||
+		/^cms_events_status_/.test(id) ||
+		id === 'system_cpu'
+	)
 }
 
 function hexToComponents(hex) {
@@ -195,13 +200,16 @@ describe('presets', () => {
 		}
 	})
 
-	it('text size 14 everywhere but the Single touch summary (22), at most three lines under an icon; top bar hidden', () => {
+	it('text size 14 everywhere but the Single touch summary (22), at most two lines under an icon; top bar hidden', () => {
 		for (const [id, preset] of Object.entries(presets)) {
 			assert.equal(preset.style.show_topbar, false, `${id}: top bar`)
 			const expected = preset.category === 'Single touch' ? 22 : 14
 			assert.equal(preset.style.size, expected, `${id}: text size`)
 			if (preset.style.png64) {
-				assert.ok(preset.style.text.split('\n').length <= 3, `${id}: at most three lines below the icon`)
+				// Companion 5.0.4 at 288 px: two lines fit below the glyph; the Storage keys' third line is the
+				// transient eject hint, empty at rest, and a trailing empty line costs nothing
+				const max = preset.category === 'Storage' ? 3 : 2
+				assert.ok(preset.style.text.split('\n').length <= max, `${id}: at most ${max} lines below the icon`)
 			}
 		}
 	})
@@ -213,7 +221,7 @@ describe('presets', () => {
 		)
 		assert.equal(
 			presets['streaming_toggle_1-all'].style.text,
-			'$(pearl:channel_1_name)\nAll Streams\n$(pearl:channel_1_publishers_state_word)',
+			'$(pearl:channel_1_name)\nStreams\n$(pearl:channel_1_publishers_state_word)',
 		)
 		assert.equal(presets.bookmarks_1.style.text, '$(pearl:channel_1_name)\nBookmark')
 		assert.equal(presets.cms_events_toggle.style.text, '$(pearl:event_ongoing_toggle_command)')

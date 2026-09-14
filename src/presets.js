@@ -109,11 +109,12 @@ function v(variableId) {
  */
 /**
  * Text size of every key but the Single touch summary: the Stream Deck plugin's own budget (the EC20
- * module uses the same), about ten characters per line, at most three lines below an icon. It is the
- * largest size at which every fixed word of the module ("Recorders", "scheduled", "Bookmark") still fits
- * on one line; at 16 and above Companion breaks them mid-word, and under an icon anything past two
- * six-character lines climbs into the glyph (QA 2026-09-14). `auto` is no alternative: Companion picks
- * it by height alone and char-breaks words on short texts ("Bookm/ark").
+ * module uses the same). Measured on Companion 5.0.4's 288 px render: about nine characters per line,
+ * four lines per key, two below an icon (a third touches the glyph), and a trailing empty line costs
+ * nothing. It is the largest size at which every fixed word of the module ("Recorders", "scheduled",
+ * "Bookmark") still fits on one line; at 16 and above Companion breaks them mid-word, and under an icon
+ * anything past two six-character lines climbs into the glyph (QA 2026-09-14). `auto` is no alternative:
+ * Companion picks it by height alone and char-breaks words on short texts ("Bookm/ark").
  */
 const TEXT_SIZE = 14
 /** the Single touch summary stands alone on its key, no icon (reference page, 2026-09-11) */
@@ -127,8 +128,9 @@ const TEXT_SIZE_SUMMARY = 22
  * layout decides whether they can collide:
  *
  * - a key with the category icon (each src/icons.js glyph is drawn small in the top third of its 72x72
- *   canvas; `pngalignment: 'center:top'`) puts at most three template lines at the bottom
- *   (`alignment: 'center:bottom'`), so the text stays below the glyph;
+ *   canvas; `pngalignment: 'center:top'`) puts at most two template lines at the bottom
+ *   (`alignment: 'center:bottom'`), so the text stays below the glyph -- a third only when it is a
+ *   transient hint that is empty at rest (the Storage keys);
  * - a `named` key -- its text carries a device-provided name or event title, which wraps however short
  *   the template is -- carries no icon and centres the text, so the whole key is there for the wrapped
  *   lines and a long name never hides the state line. On Previews and Layouts the live picture replaces
@@ -259,7 +261,7 @@ module.exports = {
 		}
 
 		// ---------------------------------------------------------------------
-		// Streaming: one toggle button per publisher, plus per channel "All Streams"
+		// Streaming: one toggle button per publisher, plus a "Streams" key per channel (all of its publishers)
 		// ---------------------------------------------------------------------
 
 		for (const publisher of this.choicesPublishers()) {
@@ -269,11 +271,13 @@ module.exports = {
 				isAll && pair
 					? `channel_${safeId(pair[0])}_publishers_state_word`
 					: `channel_${safeId(pair?.[0] ?? '')}_publisher_${safeId(pair?.[1] ?? '')}_state_word`
-			// channel name, then the stream's own name (or "All Streams"), then the state (reference page,
-			// 2026-09-11); names are variables so a rename follows. A named key: no icon, so the whole key is there
-			// for the wrapped lines and the state word survives a long channel name
+			// channel name, then the stream's own name (or "Streams" on the all-publishers key), then the state
+			// (reference page, 2026-09-11); names are variables so a rename follows. A named key: no icon, so the
+			// whole key is there for the wrapped lines. Four lines fit a key: a two-line channel name, the stream
+			// line and the state -- "All Streams" was one character too long for a line and pushed the state off
+			// the key (QA 2026-09-14)
 			const cid = safeId(pair?.[0] ?? '')
-			const streamLine = isAll ? 'All Streams' : v(`channel_${cid}_publisher_${safeId(pair?.[1] ?? '')}_name`)
+			const streamLine = isAll ? 'Streams' : v(`channel_${cid}_publisher_${safeId(pair?.[1] ?? '')}_name`)
 			add(
 				presetId(CAT_STREAMING, 'toggle', publisher.id),
 				button({
@@ -447,10 +451,12 @@ module.exports = {
 				button({
 					category: CAT_CONFIG_PRESETS,
 					name: `Apply ${preset.label}`,
-					// the preset's name (the star icon and the preset name say apply; a third line would run into the
-					// icon, QA 2026-09-14), then preset_status ("Rebooting..." after a reboot-reporting apply); the
-					// confirm hint is the confirm_pending feedback's own text, so it shows on the armed button only
+					// the preset's name over preset_status ("Rebooting..." after a reboot-reporting apply). A named key:
+					// device preset names run to four lines, so no star (the picker name says apply) and centred text
+					// (QA 2026-09-14). The confirm hint is the confirm_pending feedback's own text, so it shows on the
+					// armed button only
 					text: `${preset.id}\n${v('preset_status')}`,
+					named: true,
 					actions: [{ actionId: 'preset', options: { presetName: preset.id, sections: [], confirm: true } }],
 					feedbacks: [{ feedbackId: 'confirm_pending', options: {}, style: confirmStyle() }],
 				}),
@@ -593,6 +599,8 @@ module.exports = {
 				category: CAT_SYSTEM,
 				name: 'CPU load / status',
 				text: `${v('cpu_load')}%\n${v('system_status_text')}`,
+				// the status text (temperature · uptime) always wraps, and three lines run into the gear (QA 2026-09-14)
+				named: true,
 				feedbacks: [
 					{ feedbackId: 'system', options: { condition: 'cpu_high' }, style: stateStyle(colors.amber) },
 					{ feedbackId: 'system', options: { condition: 'cpu_hot' }, style: stateStyle(colors.amber) },
