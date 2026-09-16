@@ -2,7 +2,7 @@
 	"id": "epiphan-pearl",
 	"name": "epiphan-pearl",
 	"shortname": "pearl",
-	"description": "Epiphan Pearl module for Companion (REST API v2.0)",
+	"description": "Epiphan Encoders for Companion: Pearl-2, Pearl Mini, Pearl Nano and Pearl Nexus (REST API v2.0)",
 	"version": "0.0.0",
 	"license": "MIT",
 	"repository": "git+https://github.com/bitfocus/companion-module-epiphan-pearl.git",
