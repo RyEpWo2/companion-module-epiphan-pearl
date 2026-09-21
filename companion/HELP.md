@@ -9,7 +9,7 @@ Control and monitor Epiphan encoders (Pearl-2, Pearl Mini, Pearl Nano, Pearl Nex
 - A device user with **admin** rights (the default `admin` account). Operator accounts cannot change settings.
 - Network access from the Companion host to the encoder's HTTP port (80 by default), or its HTTPS port (443 by default) when _Use HTTPS_ is ticked.
 
-If you are upgrading a connection created before this module's 3.0.0 release, an upgrade script converts every action and feedback that still has a Stream Deck counterpart to its new id automatically (your buttons keep working, though a few option layouts changed — see the changelog). A handful of actions and feedbacks had no Stream Deck counterpart at all (renaming channels/publishers, input mute/phantom power, RTMP/SRT destination editing, ad-hoc CMS sessions, network connectivity/speed test, content metadata, manual refresh) and are gone; if any button still holds one, the connection log prints one warning per removed id the first time it starts, naming how many buttons carried it.
+If you are upgrading a connection created before this module's 3.0.0 release, an upgrade script converts every action and feedback that still has a Stream Deck counterpart to its new id automatically (your buttons keep working, though a few option layouts changed — see the changelog). Four actions had no Stream Deck counterpart at all (layout data and content metadata, get and set) and are gone; if any button still holds one, the connection log prints one warning per removed id the first time it starts, naming how many buttons carried it.
 
 ### Connection settings
 
