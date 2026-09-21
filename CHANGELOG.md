@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [3.0.0] (2026-09-14)
+## [3.0.0] (2026-09-21)
 
 Companion parity rewrite: the module's control set is now exactly the one offered by the sibling **Epiphan
 Pearl** Stream Deck plugin — same 13 actions (by Stream Deck action suffix), same feedback/variable ids
@@ -71,6 +71,11 @@ buttons**: read "Upgrade notes" below before updating a production connection.
 
 ### Changed
 
+- **The module no longer calls the device a Pearl.** Connection settings, action descriptions, the log and error
+  texts and this help say "encoder" or "device": the Pearl family will not stay the only Epiphan encoder this module
+  drives. Model names remain where they name a model (product list, firmware notes). New connections are labelled
+  `encoder` instead of `pearl` (the manifest `shortname`); existing connections keep the label they have. The module id
+  `epiphan-pearl` is unchanged, so nothing migrates and no button changes.
 - **Preset text follows one rule** (operator's reference page 2026-09-11, QA 2026-09-14): text size 14
   everywhere but the Single touch summary (22), the budget the Stream Deck plugin and the EC20 module use.
   A key with the category icon puts at most two short lines below the glyph, so text never runs into it;
@@ -176,6 +181,9 @@ No longer available; see `doc/PARITY.md` §2 for the conversion each replaces (w
 
 ### Fixed
 
+- Presets wrote every variable reference with the fixed label `pearl`, so their text went blank on a connection with
+  any other label: one you renamed, or a second device, which Companion labels `pearl_2`. They now carry the
+  connection's own label and are rebuilt when it changes. The confirm option's tooltip names the variable the same way.
 - `Input: audio gain` and `Input: audio delay` used to write a blind absolute value straight into the
   settings body. Setting a single channel (**Audio channel** = Channel A/B) still writes directly — the
   body needs nothing from the device — but **Both (stereo pair)** and `Input: audio delay` now read the

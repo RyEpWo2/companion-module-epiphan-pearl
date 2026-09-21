@@ -129,7 +129,7 @@ module.exports = {
 			if (this.isV2) return true
 			this.log(
 				'warn',
-				`${label}: this action needs the Pearl REST API v2.0 (firmware 4.24.1 or newer with "Use API v2.0" enabled)`,
+				`${label}: this action needs REST API v2.0 (firmware 4.24.1 or newer with "Use API v2.0" enabled)`,
 			)
 			return false
 		}
@@ -164,8 +164,7 @@ module.exports = {
 			id: 'confirm',
 			label: 'Confirm with a second press',
 			default: true,
-			tooltip:
-				'The first press only arms the button and sets $(pearl:confirm_hint); press the same button again within 3 seconds to send the command. Untick to send it immediately.',
+			tooltip: `The first press only arms the button and sets $(${this.label}:confirm_hint); press the same button again within 3 seconds to send the command. Untick to send it immediately.`,
 		})
 
 		// ------------------------------------------------------------------
@@ -175,7 +174,7 @@ module.exports = {
 		actions['recorder'] = {
 			name: 'Recorder',
 			description:
-				'Start, stop, pause or toggle a Pearl recorder. Toggle starts a stopped recorder and stops a running or paused one; "All recorders" controls every recorder on the device.',
+				'Start, stop, pause or toggle a recorder. Toggle starts a stopped recorder and stops a running or paused one; "All recorders" controls every recorder on the device.',
 			options: [
 				{
 					type: 'dropdown',
@@ -319,7 +318,7 @@ module.exports = {
 					default: '',
 					useVariables: true,
 					tooltip:
-						'Fallback for firmware that does not list layouts: type the layout ID shown in the Pearl Admin UI (Channel → Layouts). Used only while "Layout" is empty.',
+						'Fallback for firmware that does not list layouts: type the layout ID shown in the Admin UI of the encoder (Channel → Layouts). Used only while "Layout" is empty.',
 				},
 			],
 			callback: wrap('Layout', async (action) => {
@@ -365,7 +364,7 @@ module.exports = {
 		actions['singletouch'] = {
 			name: 'Single Touch',
 			description:
-				'Trigger a Pearl single-touch control (start/stop recording and streaming together). Most devices have only control 0.',
+				'Trigger a single-touch control of the encoder (start/stop recording and streaming together). Most devices have only control 0.',
 			options: [
 				{
 					type: 'dropdown',
@@ -441,7 +440,7 @@ module.exports = {
 
 		actions['output'] = {
 			name: 'Output Source',
-			description: 'Switch the source shown on a Pearl HDMI/SDI output.',
+			description: 'Switch the source shown on an HDMI/SDI output of the encoder.',
 			options: [
 				{
 					type: 'dropdown',
@@ -492,7 +491,7 @@ module.exports = {
 		actions['preset'] = {
 			name: 'Apply Preset',
 			description:
-				'Apply a Pearl configuration preset. This can interrupt recordings and streams and the device may reboot.',
+				'Apply a configuration preset stored on the encoder. This can interrupt recordings and streams and the device may reboot.',
 			options: [
 				{
 					type: 'dropdown',
@@ -650,7 +649,7 @@ module.exports = {
 		actions['power'] = {
 			name: 'Reboot / Shutdown',
 			description:
-				'Reboot or shut down the Pearl. Shut down powers the Pearl off completely; it must be switched back on at the device.',
+				'Reboot or shut down the encoder. Shut down powers the device off completely; it must be switched back on at the device.',
 			options: [
 				{
 					type: 'dropdown',
@@ -773,8 +772,7 @@ module.exports = {
 
 		actions['storage'] = {
 			name: 'Storage',
-			description:
-				'Eject removable media (SD card / USB) from a Pearl storage device. The main storage cannot be ejected.',
+			description: 'Eject removable media (SD card / USB) from the encoder. The main storage cannot be ejected.',
 			options: [
 				{
 					type: 'dropdown',

@@ -90,16 +90,6 @@ function presetId(category, ...parts) {
 }
 
 /**
- * Companion variable reference for this connection.
- *
- * @param {string} variableId
- * @returns {string}
- */
-function v(variableId) {
-	return `$(pearl:${variableId})`
-}
-
-/**
  * Text sizes, in Companion's units, standardised on Ryan's reference page (Companion 5, 2026-09-11):
  * 20 for most buttons, 16 where two variable lines must fit (the CMS status keys), 22 for the Single
  * touch summary that has the whole key to itself. Fixed rather than `auto`: auto grows a short label
@@ -204,6 +194,11 @@ module.exports = {
 	 */
 	getPresets() {
 		const presets = {}
+		// Companion resolves $(label:variable) by the connection's label, which the user may change and which
+		// Companion suffixes for a second device (label_2). The base library hands the module its current label
+		// at start-up and again through configUpdated() on a rename, and both paths rebuild the presets, so the
+		// references are built from it here rather than from a fixed word.
+		const v = (variableId) => `$(${this.label}:${variableId})`
 		const enabledCategories = new Set(normalisePresetCategories(this.config?.preset_categories))
 
 		// ids that collide after safeId() get a _2, _3, ... suffix instead of being dropped

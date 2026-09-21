@@ -1,4 +1,4 @@
 const { runEntrypoint } = require('@companion-module/base')
-const { EpiphanPearl, upgradeScripts } = require('./src/instance')
+const { EpiphanEncoder, upgradeScripts } = require('./src/instance')
 
-runEntrypoint(EpiphanPearl, upgradeScripts)
+runEntrypoint(EpiphanEncoder, upgradeScripts)

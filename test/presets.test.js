@@ -167,8 +167,8 @@ describe('presets', () => {
 					assert.ok(optionIds(def).has(key), `${id}: feedback ${feedback.feedbackId} has no option ${key}`)
 				}
 			}
-			// every $(pearl:var) referenced in the button text must be a variable that actually exists
-			for (const m of String(preset.style.text).matchAll(/\$\(pearl:([^)]+)\)/g)) {
+			// every $(encoder:var) referenced in the button text must be a variable that actually exists
+			for (const m of String(preset.style.text).matchAll(/\$\(encoder:([^)]+)\)/g)) {
 				assert.notEqual(instance.variableValues[m[1]], undefined, `${id} uses unknown variable ${m[1]}`)
 			}
 		}
@@ -200,6 +200,30 @@ describe('presets', () => {
 		}
 	})
 
+	it('variable references carry the connection label, whatever it is, and follow a rename', async () => {
+		const refsOf = (inst) => {
+			const texts = Object.values(inst.definitions.presets).map((p) => p.style.text)
+			const tooltip = inst.definitions.actions.preset.options.find((o) => o.id === 'confirm').tooltip
+			return [...texts, tooltip].join('\n').match(/\$\([^)]*\)/g) ?? []
+		}
+		const other = await createInstance({ mock, label: 'studio_a' })
+		try {
+			let refs = refsOf(other)
+			assert.ok(refs.length > 20, 'presets and the confirm tooltip reference variables')
+			for (const ref of refs)
+				assert.match(ref, /^\$\(studio_a:/, `${ref}: the connection label, not a fixed word`)
+			// Companion renames a connection by setting the new label and calling configUpdated()
+			other.label = 'studio_b'
+			await other.configUpdated({ ...other.config })
+			await other.startupPromise
+			refs = refsOf(other)
+			assert.ok(refs.length > 20)
+			for (const ref of refs) assert.match(ref, /^\$\(studio_b:/, `${ref}: rebuilt with the new label`)
+		} finally {
+			await other.destroy()
+		}
+	})
+
 	it('text size 14 everywhere but the Single touch summary (22), at most two lines under an icon; top bar hidden', () => {
 		for (const [id, preset] of Object.entries(presets)) {
 			assert.equal(preset.style.show_topbar, false, `${id}: top bar`)
@@ -217,14 +241,14 @@ describe('presets', () => {
 	it('reference-page texts: channel + stream name on stream keys, channel name on bookmarks, verbs on CMS commands, summary alone on Single touch', () => {
 		assert.equal(
 			presets['streaming_toggle_1-0'].style.text,
-			'$(pearl:channel_1_name)\n$(pearl:channel_1_publisher_0_name)\n$(pearl:channel_1_publisher_0_state_word)',
+			'$(encoder:channel_1_name)\n$(encoder:channel_1_publisher_0_name)\n$(encoder:channel_1_publisher_0_state_word)',
 		)
 		assert.equal(
 			presets['streaming_toggle_1-all'].style.text,
-			'$(pearl:channel_1_name)\nStreams\n$(pearl:channel_1_publishers_state_word)',
+			'$(encoder:channel_1_name)\nStreams\n$(encoder:channel_1_publishers_state_word)',
 		)
-		assert.equal(presets.bookmarks_1.style.text, '$(pearl:channel_1_name)\nBookmark')
-		assert.equal(presets.cms_events_toggle.style.text, '$(pearl:event_ongoing_toggle_command)')
+		assert.equal(presets.bookmarks_1.style.text, '$(encoder:channel_1_name)\nBookmark')
+		assert.equal(presets.cms_events_toggle.style.text, '$(encoder:event_ongoing_toggle_command)')
 		assert.equal(presets.cms_events_stop.style.text, 'Stop')
 		assert.equal(presets.cms_events_stop.style.color, colors.red, 'Stop is the one red label')
 		for (const [id, verb] of [
@@ -234,7 +258,7 @@ describe('presets', () => {
 		]) {
 			assert.equal(presets[id].style.text, verb, `${id}: verb only`)
 		}
-		assert.equal(presets.single_touch_toggle_0.style.text, '$(pearl:singletouch_0_summary)')
+		assert.equal(presets.single_touch_toggle_0.style.text, '$(encoder:singletouch_0_summary)')
 		assert.equal(presets.single_touch_toggle_0.style.png64, undefined, 'Single touch has no icon')
 		assert.equal(presets['streaming_toggle_1-0'].style.png64, undefined, 'stream keys have no icon')
 		const channel = instance.state.channels['1']
@@ -243,7 +267,7 @@ describe('presets', () => {
 		const configPreset = Object.values(presets).find((p) => p.category === 'Configuration presets')
 		assert.match(
 			configPreset.style.text,
-			/^[^\n]+\n\$\(pearl:preset_status\)$/,
+			/^[^\n]+\n\$\(encoder:preset_status\)$/,
 			'configuration preset: name over status, no Apply line (the star icon says apply)',
 		)
 	})
@@ -300,7 +324,7 @@ describe('presets', () => {
 
 	it('CMS events: the three status buttons lead with an event variable; the command buttons grey out via event_applies', () => {
 		const cms = Object.values(presets).filter((p) => p.category === 'CMS events')
-		const status = cms.filter((p) => /^\$\(pearl:event_/.test(p.style.text))
+		const status = cms.filter((p) => /^\$\(encoder:event_/.test(p.style.text))
 		assert.equal(status.length, 3, 'status_ongoing, status_upcoming and toggle')
 		for (const p of status) {
 			// status keys: title and time; the toggle: the command alone (reference page, 2026-09-11)
@@ -344,8 +368,8 @@ describe('presets', () => {
 	})
 
 	it('preview preset texts reference the sanitised name variable', () => {
-		assert.equal(presets.previews_channel_1.style.text, '$(pearl:channel_1_name)')
-		assert.equal(presets['previews_input_hdmi-a'].style.text, '$(pearl:input_hdmi-a_name)')
+		assert.equal(presets.previews_channel_1.style.text, '$(encoder:channel_1_name)')
+		assert.equal(presets['previews_input_hdmi-a'].style.text, '$(encoder:input_hdmi-a_name)')
 
 		// an odd channel id (anything outside [a-zA-Z0-9_-]) goes through safeId like the variable id does
 		instance.state.channels['x.y'] = {
@@ -358,7 +382,7 @@ describe('presets', () => {
 		instance.updateSystem()
 		const odd = instance.definitions.presets.previews_channel_x_y
 		assert.ok(odd, 'preset for the odd channel exists')
-		assert.equal(odd.style.text, '$(pearl:channel_x_y_name)')
+		assert.equal(odd.style.text, '$(encoder:channel_x_y_name)')
 		assert.deepEqual(odd.feedbacks[0].options, { source: 'channel', sourceId: 'x.y' })
 	})
 

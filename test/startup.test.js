@@ -6,7 +6,7 @@ const path = require('node:path')
 const { installStub } = require('./harness')
 
 const { InstanceStatus } = installStub()
-const { EpiphanPearl } = require(path.join(__dirname, '..', 'src', 'instance.js'))
+const { EpiphanEncoder } = require(path.join(__dirname, '..', 'src', 'instance.js'))
 
 /**
  * Companion gives init()/configUpdated() only a few seconds before it restarts the module.
@@ -25,7 +25,7 @@ describe('startup with an unreachable device', () => {
 		await new Promise((resolve) => dead.listen(0, '127.0.0.1', resolve))
 		const port = dead.address().port
 
-		const instance = new EpiphanPearl({ id: 'test', upgradeScripts: [], _isInstanceBaseProps: true })
+		const instance = new EpiphanEncoder({ id: 'test', upgradeScripts: [], _isInstanceBaseProps: true })
 		try {
 			const started = Date.now()
 			await instance.init({
@@ -75,7 +75,7 @@ describe('startup with an unreachable device', () => {
 		await new Promise((resolve) => dead.listen(0, '127.0.0.1', resolve))
 		const port = dead.address().port
 
-		const instance = new EpiphanPearl({ id: 'test', upgradeScripts: [], _isInstanceBaseProps: true })
+		const instance = new EpiphanEncoder({ id: 'test', upgradeScripts: [], _isInstanceBaseProps: true })
 		try {
 			await instance.init({
 				host: '127.0.0.1',

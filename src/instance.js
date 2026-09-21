@@ -6,7 +6,7 @@ const {
 	Regex,
 } = require('@companion-module/base')
 
-const { PearlApiError, ...api } = require('./api')
+const { EncoderApiError, ...api } = require('./api')
 const poller = require('./poller')
 const choices = require('./choices')
 const actions = require('./actions')
@@ -74,12 +74,12 @@ function validateConfig(config) {
 }
 
 /**
- * Companion instance class for the Epiphan Pearl.
+ * Companion instance class for Epiphan encoders (the Pearl family and newer models).
  *
  * @extends InstanceBase
  * @since 1.0.0
  */
-class EpiphanPearl extends InstanceBase {
+class EpiphanEncoder extends InstanceBase {
 	/**
 	 * @param {unknown} internal
 	 */
@@ -408,7 +408,7 @@ class EpiphanPearl extends InstanceBase {
 	}
 }
 
-Object.assign(EpiphanPearl.prototype, api, poller, choices, actions, feedbacks, presets, meter)
+Object.assign(EpiphanEncoder.prototype, api, poller, choices, actions, feedbacks, presets, meter)
 
 const upgradeToBooleanFeedbacks = CreateConvertToBooleanFeedbackUpgradeScript({
 	channelLayout: {
@@ -427,4 +427,4 @@ const upgradeToBooleanFeedbacks = CreateConvertToBooleanFeedbackUpgradeScript({
 
 const upgradeScripts = [upgradeToBooleanFeedbacks, ...upgrades]
 
-module.exports = { EpiphanPearl, upgradeScripts, PearlApiError, normaliseConfig }
+module.exports = { EpiphanEncoder, upgradeScripts, EncoderApiError, normaliseConfig }

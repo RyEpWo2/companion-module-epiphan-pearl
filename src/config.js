@@ -22,7 +22,7 @@ function getConfigFields() {
 			width: 12,
 			label: 'Information',
 			value:
-				'Controls an Epiphan Pearl (Pearl-2, Pearl Mini, Pearl Nano) over its REST API. ' +
+				'Controls an Epiphan encoder (Pearl-2, Pearl Mini, Pearl Nano, Pearl Nexus and newer models) over its REST API. ' +
 				'Firmware 4.24.1 or newer is required for the API v2.0 features (inputs, outputs, storage, single touch, events, presets, previews).',
 		},
 		{
@@ -61,7 +61,7 @@ function getConfigFields() {
 			label: 'Use HTTPS',
 			width: 6,
 			default: false,
-			tooltip: 'If HTTPS is enabled on the Pearl, enable it here too.',
+			tooltip: 'If HTTPS is enabled on the encoder, enable it here too.',
 		},
 		{
 			type: 'checkbox',
@@ -139,7 +139,7 @@ function getConfigFields() {
 				'Which groups of ready-made buttons appear in the drag-and-drop preset list. Unchecking a group ' +
 				'only hides its auto-generated buttons here; the underlying actions and feedbacks stay available ' +
 				"if you want to build your own button by hand, and anything you've already placed on a page keeps " +
-				'working. Some Pearls have enough channels, layouts or inputs that a few of these groups produce a ' +
+				'working. Some encoders have enough channels, layouts or inputs that a few of these groups produce a ' +
 				'lot of buttons (dozens of layout or input buttons is normal); trim what you do not use.',
 		},
 	]

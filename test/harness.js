@@ -110,7 +110,7 @@ function CreateUseBuiltinInvertForFeedbacksUpgradeScript(upgradeMap) {
 class InstanceBase {
 	constructor(internal) {
 		this.id = internal?.id ?? 'test'
-		this.label = internal?.label ?? 'pearl'
+		this.label = internal?.label ?? 'encoder'
 		this.upgradeScripts = internal?.upgradeScripts ?? []
 
 		this.calls = { log: [], status: [] }
@@ -258,23 +258,23 @@ const DEFAULT_CONFIG = Object.freeze({
 })
 
 /**
- * Build and initialise an EpiphanPearl instance pointed at a mock server.
+ * Build and initialise an EpiphanEncoder instance pointed at a mock server.
  *
  * @param {object} opts
  * @param {object} opts.mock       result of startMockPearl()
  * @param {object} [opts.config]   config overrides
- * @returns {Promise<import('../src/instance').EpiphanPearl>}
+ * @returns {Promise<import('../src/instance').EpiphanEncoder>}
  */
-async function createInstance({ config = {}, mock } = {}) {
+async function createInstance({ config = {}, mock, label } = {}) {
 	installStub()
 	if (!mock || typeof mock.port !== 'number') {
 		throw new Error('createInstance({ mock }) requires the object returned by startMockPearl()')
 	}
 	// required lazily so the stub is in place before src/instance.js binds InstanceBase
-	const { EpiphanPearl } = require(path.join(__dirname, '..', 'src', 'instance.js'))
+	const { EpiphanEncoder } = require(path.join(__dirname, '..', 'src', 'instance.js'))
 
 	const fullConfig = { ...DEFAULT_CONFIG, host_port: mock.port, ...config }
-	const instance = new EpiphanPearl({ id: 'test', upgradeScripts: [], _isInstanceBaseProps: true })
+	const instance = new EpiphanEncoder({ id: 'test', label, upgradeScripts: [], _isInstanceBaseProps: true })
 	instance.mock = mock
 	await instance.init(fullConfig)
 	// init returns before the device is contacted (Companion limits its duration); wait for the first poll

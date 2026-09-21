@@ -404,7 +404,7 @@ describe('variables across polls', () => {
 		assert.ok(instance.definitions.presets['previews_input_D2P496187_hdmi_b'])
 		assert.equal(
 			instance.definitions.presets['previews_input_D2P496187_hdmi_b'].style.text,
-			'$(pearl:input_D2P496187_hdmi_b_name)',
+			'$(encoder:input_D2P496187_hdmi_b_name)',
 		)
 		delete mock.state.inputs['D2P496187.hdmi b']
 		await instance.pollAll()

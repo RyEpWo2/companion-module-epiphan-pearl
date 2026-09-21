@@ -11,10 +11,10 @@ const CLOCK_SLACK_MS = 2000
  * - status: HTTP status code (0 for network errors / timeouts)
  * - apiStatus: the `status` string of the Pearl JSON envelope when present (e.g. 'notfound', 'error')
  */
-class PearlApiError extends Error {
+class EncoderApiError extends Error {
 	constructor(message, { status = 0, apiStatus = undefined, method = undefined, path = undefined } = {}) {
 		super(message)
-		this.name = 'PearlApiError'
+		this.name = 'EncoderApiError'
 		this.status = status
 		this.apiStatus = apiStatus
 		this.method = method
@@ -24,7 +24,7 @@ class PearlApiError extends Error {
 
 /**
  * Resolve the path prefix for a request base
- * @param {import('./instance').EpiphanPearl} self
+ * @param {import('./instance').EpiphanEncoder} self
  * @param {'auto'|'v1'|'raw'} base
  * @returns {string}
  */
@@ -148,7 +148,7 @@ module.exports = {
 	 * @returns {Promise<any>} the `result` field of the JSON envelope, the whole body when there is no result field,
 	 *                         `true` for an ok envelope without result, Buffer when raw, string when text,
 	 *                         null when optional and not found.
-	 * @throws {PearlApiError}
+	 * @throws {EncoderApiError}
 	 */
 	async request(method, path, opts = {}) {
 		const config = this.config || {}
@@ -201,7 +201,7 @@ module.exports = {
 				isTimeout ? 'Request timed out' : cause?.code || error?.message || 'Connection failed',
 			)
 			if (!opts.silent) this.log('error', message)
-			throw new PearlApiError(message, { status: 0, ...errInfo })
+			throw new EncoderApiError(message, { status: 0, ...errInfo })
 		}
 
 		this.syncClock(response)
@@ -210,7 +210,7 @@ module.exports = {
 			const message = `Authentication failed (${response.status}) for ${verb} ${url}`
 			this.applyStatus(InstanceStatus.AuthenticationFailure, 'Check username and password')
 			if (!opts.silent) this.log('error', message)
-			throw new PearlApiError(message, { status: response.status, ...errInfo })
+			throw new EncoderApiError(message, { status: response.status, ...errInfo })
 		}
 
 		if (opts.optional && (response.status === 404 || response.status === 405)) {
@@ -236,7 +236,7 @@ module.exports = {
 			const message =
 				`HTTP ${response.status} ${response.statusText || ''} for ${verb} ${url}${detail ? ' - ' + detail : ''}`.trim()
 			if (!opts.silent) this.log('error', message)
-			throw new PearlApiError(message, { status: response.status, apiStatus, ...errInfo })
+			throw new EncoderApiError(message, { status: response.status, apiStatus, ...errInfo })
 		}
 
 		let result
@@ -263,9 +263,9 @@ module.exports = {
 				}
 				if (body && typeof body === 'object' && !Array.isArray(body) && typeof body.status === 'string') {
 					if (body.status !== 'ok') {
-						const message = `Pearl returned status '${body.status}' for ${verb} ${url}${body.message ? ' - ' + body.message : ''}`
+						const message = `Device returned status '${body.status}' for ${verb} ${url}${body.message ? ' - ' + body.message : ''}`
 						if (!opts.silent) this.log('error', message)
-						throw new PearlApiError(message, {
+						throw new EncoderApiError(message, {
 							status: response.status,
 							apiStatus: body.status,
 							...errInfo,
@@ -379,4 +379,4 @@ module.exports = {
 	},
 }
 
-module.exports.PearlApiError = PearlApiError
+module.exports.EncoderApiError = EncoderApiError

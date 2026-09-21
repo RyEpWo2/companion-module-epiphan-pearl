@@ -170,9 +170,9 @@ describe('init against a v2.0 device', () => {
 					assert.ok(ids.has(key), `preset ${id}: feedback ${fb.feedbackId} has no option ${key}`)
 				}
 			}
-			// every $(pearl:var) in the text must be a defined variable
+			// every $(encoder:var) in the text must be a defined variable
 			const text = String(preset.style.text)
-			for (const m of text.matchAll(/\$\(pearl:([^)]+)\)/g)) {
+			for (const m of text.matchAll(/\$\(encoder:([^)]+)\)/g)) {
 				assert.notEqual(instance.variableValues[m[1]], undefined, `preset ${id} uses unknown variable ${m[1]}`)
 			}
 		}

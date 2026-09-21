@@ -1,13 +1,13 @@
-## Epiphan Pearl
+## Epiphan Encoders
 
-Control and monitor Epiphan Pearl encoders (Pearl-2, Pearl Mini, Pearl Nano, Pearl Nexus) from Companion. The action set matches the sibling Epiphan Pearl Stream Deck plugin one for one: Recorder, Stream, Layout, Single Touch, Bookmark, Preview, Output Source, Apply Preset, Event, System Status, Reboot / Shutdown, Audio and Storage.
+Control and monitor Epiphan encoders (Pearl-2, Pearl Mini, Pearl Nano, Pearl Nexus and newer models) from Companion. The action set matches the sibling Epiphan Encoders Stream Deck plugin one for one: Recorder, Stream, Layout, Single Touch, Bookmark, Preview, Output Source, Apply Preset, Event, System Status, Reboot / Shutdown, Audio and Storage.
 
 ### Requirements
 
-- **Pearl firmware 4.24.1 or newer** for the full feature set. This module talks to the Pearl REST API v2.0 (`/api/v2.0/...`).
+- **Firmware 4.24.1 or newer** for the full feature set. This module talks to the encoder's REST API v2.0 (`/api/v2.0/...`).
 - **Older firmware** still works for the actions that do not need v2.0: Stream, Layout, Bookmark and Reboot / Shutdown work in full; Recorder works for a single recorder's Start/Stop/Toggle/Reset (Pause, Resume and "All recorders" need v2.0). Every other action is marked _requires API v2.0_ below. On older firmware (or with _Use API v2.0 (if available)_ unticked) such an action logs a warning and does nothing when pressed, and such a feedback is always false (previews and system/AFU data stay empty).
-- A Pearl user with **admin** rights (the default `admin` account). Operator accounts cannot change settings.
-- Network access from the Companion host to the Pearl's HTTP port (80 by default), or its HTTPS port (443 by default) when _Use HTTPS_ is ticked.
+- A device user with **admin** rights (the default `admin` account). Operator accounts cannot change settings.
+- Network access from the Companion host to the encoder's HTTP port (80 by default), or its HTTPS port (443 by default) when _Use HTTPS_ is ticked.
 
 If you are upgrading a connection created before this module's 3.0.0 release, an upgrade script converts every action and feedback that still has a Stream Deck counterpart to its new id automatically (your buttons keep working, though a few option layouts changed — see the changelog). A handful of actions and feedbacks had no Stream Deck counterpart at all (renaming channels/publishers, input mute/phantom power, RTMP/SRT destination editing, ad-hoc CMS sessions, network connectivity/speed test, content metadata, manual refresh) and are gone; if any button still holds one, the connection log prints one warning per removed id the first time it starts, naming how many buttons carried it.
 
@@ -17,30 +17,30 @@ The setting names below are the labels shown in the connection's settings page.
 
 | Setting                                                     | Meaning                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Host**                                                    | IP address or DNS name of the Pearl (default `192.168.255.250`).                                                                                                                                                                                                                                                                                                                                                                      |
-| **Port**                                                    | HTTP port of the Pearl web UI/API (default `80`; becomes `443` automatically the first time you turn on _Use HTTPS_ if you left it at `80`).                                                                                                                                                                                                                                                                                          |
-| **Username**                                                | Pearl account name (default `admin`).                                                                                                                                                                                                                                                                                                                                                                                                 |
-| **Password**                                                | Password for that account. Leave blank if the Pearl has no password set.                                                                                                                                                                                                                                                                                                                                                              |
-| **Use HTTPS**                                               | Off by default. If HTTPS is enabled on the Pearl, enable it here too.                                                                                                                                                                                                                                                                                                                                                                 |
-| **Accept self-signed certificate**                          | Shown only while _Use HTTPS_ is ticked. Ticked by default: accept the Pearl's own (self-signed) certificate without a trusted CA. Untick to require a certificate a public or internal CA has signed; an untrusted certificate then fails the connection instead of being accepted.                                                                                                                                                   |
+| **Host**                                                    | IP address or DNS name of the encoder (default `192.168.255.250`).                                                                                                                                                                                                                                                                                                                                                                    |
+| **Port**                                                    | HTTP port of the encoder's web UI/API (default `80`; becomes `443` automatically the first time you turn on _Use HTTPS_ if you left it at `80`).                                                                                                                                                                                                                                                                                      |
+| **Username**                                                | Device account name (default `admin`).                                                                                                                                                                                                                                                                                                                                                                                                |
+| **Password**                                                | Password for that account. Leave blank if the device has no password set.                                                                                                                                                                                                                                                                                                                                                             |
+| **Use HTTPS**                                               | Off by default. If HTTPS is enabled on the encoder, enable it here too.                                                                                                                                                                                                                                                                                                                                                               |
+| **Accept self-signed certificate**                          | Shown only while _Use HTTPS_ is ticked. Ticked by default: accept the encoder's own (self-signed) certificate without a trusted CA. Untick to require a certificate a public or internal CA has signed; an untrusted certificate then fails the connection instead of being accepted.                                                                                                                                                 |
 | **Poll interval (ms)**                                      | Milliseconds between state polls (500..300000, default `2000`). Every poll refreshes channels, publishers, recorders, inputs, outputs, storage, single touch, system status and the CMS schedule. Firmware, device identity and the list of configuration presets are fetched on the first poll and then every 30th poll. If a poll fails, the next one waits longer (doubling each time, up to 15 s) until the device answers again. |
 | **Request timeout (ms)**                                    | Milliseconds a single request may take before it is aborted (1000..60000, default `5000`).                                                                                                                                                                                                                                                                                                                                            |
-| **Preview image refresh interval (s, 0 disables previews)** | Seconds between preview image refreshes (0..300, default `2`). `0` disables every preview (the audio meter has its own 500 ms level poll and is not affected). Only previews actually placed on a button are fetched, at most 3 at a time, so a page full of preview buttons does not overwhelm the Pearl.                                                                                                                            |
-| **Preview image width (px)**                                | Width in pixels requested from the Pearl for preview images (72..720, default `144`). Larger images look sharper on big surfaces but cost more bandwidth and CPU on the Pearl.                                                                                                                                                                                                                                                        |
-| **Poll CMS schedule**                                       | Ticked (default): poll the upcoming and ongoing CMS event, plus the next 10 scheduled/recent events, every poll (Kaltura, Panopto, YuJa, Opencast...). Untick if the Pearl is not connected to a CMS.                                                                                                                                                                                                                                 |
+| **Preview image refresh interval (s, 0 disables previews)** | Seconds between preview image refreshes (0..300, default `2`). `0` disables every preview (the audio meter has its own 500 ms level poll and is not affected). Only previews actually placed on a button are fetched, at most 3 at a time, so a page full of preview buttons does not overwhelm the encoder.                                                                                                                          |
+| **Preview image width (px)**                                | Width in pixels requested from the encoder for preview images (72..720, default `144`). Larger images look sharper on big surfaces but cost more bandwidth and CPU on the encoder.                                                                                                                                                                                                                                                    |
+| **Poll CMS schedule**                                       | Ticked (default): poll the upcoming and ongoing CMS event, plus the next 10 scheduled/recent events, every poll (Kaltura, Panopto, YuJa, Opencast...). Untick if the device is not connected to a CMS.                                                                                                                                                                                                                                |
 | **Enable verbose logging**                                  | Log every request and response at debug level. Useful when reporting a problem; leave off in normal use.                                                                                                                                                                                                                                                                                                                              |
 | **Use API v2.0 (if available)**                             | Ticked (default): probe for the v2.0 API and use it; fall back to the legacy API if it is missing. Untick to force the legacy API.                                                                                                                                                                                                                                                                                                    |
 | **Preset categories to generate**                           | Multi-select, default: every category. Controls which groups of ready-made buttons appear in the drag-and-drop preset list (see Presets below). Unchecking a group only hides its auto-generated buttons; the underlying actions and feedbacks stay available for a hand-built button, and anything already on a page keeps working.                                                                                                  |
 
 ### Actions, feedbacks, variables and presets
 
-Actions never disable the connection when the Pearl rejects a request: the device's own error message is
+Actions never disable the connection when the encoder rejects a request: the device's own error message is
 logged and written to the `last_error` variable. Text options that accept variables (`Bookmark`'s Text,
 `Layout`'s Layout ID) are expanded with Companion's variable parser before being sent.
 
 #### Recorder
 
-Start, stop, pause or toggle a Pearl recorder. Toggle starts a stopped recorder and stops a running or
+Start, stop, pause or toggle a recorder. Toggle starts a stopped recorder and stops a running or
 paused one; "All recorders" controls every recorder on the device.
 
 | Option       | Values                                    | Default       |
@@ -70,7 +70,7 @@ configured on the channel.
 
 | Option        | Values                                                           | Default       |
 | ------------- | ---------------------------------------------------------------- | ------------- |
-| **Channel**   | the Pearl's channels                                             | first channel |
+| **Channel**   | the encoder's channels                                           | first channel |
 | **Publisher** | "Channel – All publishers" or a specific "Channel – Name (type)" | first entry   |
 | **Action**    | Toggle, Start, Stop                                              | Toggle        |
 
@@ -91,12 +91,12 @@ Switch a channel to a layout. The key lights up while that layout is active.
 
 | Option        | Values                                                     | Default       |
 | ------------- | ---------------------------------------------------------- | ------------- |
-| **Channel**   | the Pearl's channels                                       | first channel |
+| **Channel**   | the encoder's channels                                     | first channel |
 | **Layout**    | layouts of that channel, labelled "Channel – Layout"       | first entry   |
 | **Layout ID** | text, accepts variables; used only while _Layout_ is empty | `''`          |
 
 _Layout ID_ tooltip (verbatim): "Fallback for firmware that does not list layouts: type the layout ID shown
-in the Pearl Admin UI (Channel → Layouts). Used only while "Layout" is empty."
+in the Admin UI of the encoder (Channel → Layouts). Used only while "Layout" is empty."
 
 **Feedback — Layout active** (`layout_active`): true while the selected layout is the active layout of its
 channel. Amber.
@@ -113,7 +113,7 @@ active, plus the live preview image.
 
 #### Single Touch
 
-Trigger a Pearl single-touch control (start/stop recording and streaming together). Most devices have only
+Trigger a single-touch control of the encoder (start/stop recording and streaming together). Most devices have only
 control 0. _Requires API v2.0._
 
 | Option                   | Values                             | Default                              |
@@ -134,7 +134,7 @@ Add a bookmark (marker) to a channel's recording. Bookmarks are only stored whil
 
 | Option                                 | Values                  | Default       |
 | -------------------------------------- | ----------------------- | ------------- |
-| **Channel**                            | the Pearl's channels    | first channel |
+| **Channel**                            | the encoder's channels  | first channel |
 | **Text**                               | text, accepts variables | `Marker`      |
 | **Append the current time (HH:MM:SS)** | checkbox                | off           |
 
@@ -165,7 +165,7 @@ image with the source's name.
 
 #### Output Source
 
-Switch the source shown on a Pearl HDMI/SDI output. _Requires API v2.0._
+Switch the source shown on an HDMI/SDI output of the encoder. _Requires API v2.0._
 
 | Option     | Values                                                                                    | Default      |
 | ---------- | ----------------------------------------------------------------------------------------- | ------------ |
@@ -182,7 +182,7 @@ so this only reflects what this connection itself last sent, not a value confirm
 
 #### Apply Preset
 
-Apply a Pearl configuration preset. This can interrupt recordings and streams and the device may reboot.
+Apply a configuration preset stored on the encoder. This can interrupt recordings and streams and the device may reboot.
 _Requires API v2.0._
 
 | Option                          | Values                                                                                              | Default               |
@@ -260,7 +260,7 @@ uploading, amber paused, red error), device info button.
 
 #### Reboot / Shutdown
 
-Reboot or shut down the Pearl. Shut down powers the Pearl off completely; it must be switched back on at the
+Reboot or shut down the encoder. Shut down powers the device off completely; it must be switched back on at the
 device.
 
 | Option                          | Values                          | Default |
@@ -296,7 +296,7 @@ input reporting no levels (no signal, or a device without the level endpoint) dr
 
 Putting this feedback on a button starts a **500 ms level poll** for the whole connection; taking the last
 one off stops it again. One poll covers every metered input (a single request lists them all), so ten meter
-buttons cost the Pearl no more than one. The level variables below are filled by that poll only — while no
+buttons cost the encoder no more than one. The level variables below are filled by that poll only — while no
 meter is placed anywhere in the connection they read empty. If you want a text-only level readout, keep one
 meter button somewhere in the same connection, or press a button with _Press adjusts_ = Nothing, which
 re-reads the levels once.
@@ -310,7 +310,7 @@ button works with the action on both rotate steps, see Rotary below).
 
 #### Storage
 
-Eject removable media (SD card / USB) from a Pearl storage device. The main storage cannot be ejected.
+Eject removable media (SD card / USB) from the encoder. The main storage cannot be ejected.
 _Requires API v2.0._
 
 | Option                          | Values                          | Default                                 |
@@ -388,7 +388,7 @@ Add the **Audio meter** feedback to a dial's button to see the bars next to the 
 
 ### Variables summary
 
-Use variables as `$(pearl:variable_id)` where `pearl` is the label you gave the connection. Ids built from a
+Use variables as `$(encoder:variable_id)` where `encoder` is the label you gave the connection (`encoder` is the default for a new connection, `encoder_2` for a second one). Ids built from a
 device id (recorders, channels, publishers, inputs, outputs, storages, single touch controls) have every
 character other than letters, digits, `_` and `-` replaced by `_`. Suffixes ending `_hms` are `HH:MM:SS`;
 `_text`/`_time` suffixes are the ready-to-display forms described in each action's section above. Unknown
@@ -411,7 +411,7 @@ values are always empty, never missing.
 
 ### Presets summary
 
-Presets are generated from what the Pearl reports, so they appear after the first successful poll. Which
+Presets are generated from what the encoder reports, so they appear after the first successful poll. Which
 categories actually get generated is controlled by _Preset categories to generate_ (see Connection settings
 above); all of them are on by default.
 
@@ -443,9 +443,9 @@ live picture replaces the icon. Labels and text size stay editable like any Comp
 - **Toggle streams and recorders from presets.** The Streaming and Recording presets use the _Toggle_
   option together with a state feedback, so one button both shows and switches the state. Drag them onto a
   page and rename as needed.
-- **Put live numbers on buttons.** Button text like `$(pearl:recorder_1_state_word) $(pearl:recorder_1_duration_text)`
-  or `$(pearl:storage_main_free)` updates every poll. Countdown variables such as
-  `$(pearl:event_upcoming_starts_in_hms)` are recomputed every poll too, corrected for the Pearl's own clock.
+- **Put live numbers on buttons.** Button text like `$(encoder:recorder_1_state_word) $(encoder:recorder_1_duration_text)`
+  or `$(encoder:storage_main_free)` updates every poll. Countdown variables such as
+  `$(encoder:event_upcoming_starts_in_hms)` are recomputed every poll too, corrected for the encoder's own clock.
 - **Preview thumbnails on a Stream Deck.** Add the _Preview_ or _Layout preview_ feedback (or use the
   Previews/Layouts presets) and set _Preview image width (px)_ to roughly the button size (72 for a classic
   Stream Deck key, 144 for XL/+ keys). Keep _Preview image refresh interval_ at 1–2 s and only place the
@@ -454,11 +454,11 @@ live picture replaces the icon. Labels and text size stay editable like any Comp
   Preset_ all default to a second-press confirm; untick the checkbox and use Companion's own "Release after
   N ms" step instead if you want the actual Stream Deck hold gesture back (see Confirm and hold above).
 - **Many channels or presets?** A slower _Poll interval (ms)_ (for example 5000–10000) reduces load on the
-  Pearl. If the drag-and-drop preset list feels cluttered (a Pearl with many layouts or inputs can produce a
+  encoder. If the drag-and-drop preset list feels cluttered (an encoder with many layouts or inputs can produce a
   lot of Layouts/Previews/Audio buttons), uncheck the categories you do not use in _Preset categories to
   generate_.
 - **Something does not react?** Turn on _Enable verbose logging_, retry, and read the connection log: the
-  Pearl's own error message is logged for every rejected request and also lands in the `last_error` variable.
+  encoder's own error message is logged for every rejected request and also lands in the `last_error` variable.
 
 ### Known limitations
 
@@ -490,7 +490,7 @@ live picture replaces the icon. Labels and text size stay editable like any Comp
 - **Output source, applied configuration preset and storage hints are optimistic.** The API can set an
   output's source, apply a configuration preset and eject a storage, but has no endpoint to read any of
   those back. `output_ID_source`, `preset_last_applied` and the matching feedbacks therefore only reflect
-  the last value set through Companion — empty/false after a restart, and stale if changed from the Pearl
+  the last value set through Companion — empty/false after a restart, and stale if changed from the encoder's
   web UI or another controller.
 - **Not exposed on purpose.** Renaming channels/publishers, muting or phantom-powering inputs, editing
   RTMP/SRT destinations, creating publishers or network inputs, ad-hoc CMS sessions, network

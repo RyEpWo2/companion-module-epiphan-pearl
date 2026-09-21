@@ -422,7 +422,7 @@ module.exports = {
 		if (structureChanged) {
 			this.updateSystem()
 			this.checkFeedbacks()
-			if (!firstPoll) this.log('info', 'Pearl configuration has changed, choices and presets updated.')
+			if (!firstPoll) this.log('info', 'Device configuration has changed, choices and presets updated.')
 		} else {
 			// output_set expires after a fixed 5 s window rather than on a state change, so it has no
 			// entry in DOMAIN_FEEDBACKS; instead it is rechecked every poll while any output was set

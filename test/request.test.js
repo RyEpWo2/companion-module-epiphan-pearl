@@ -8,13 +8,13 @@ const { startMockPearl } = require('./mock-pearl')
 describe('request layer', () => {
 	let mock
 	let instance
-	let PearlApiError
+	let EncoderApiError
 
 	before(async () => {
 		mock = await startMockPearl()
 		instance = await createInstance({ mock })
 		// the harness installs the stub before src is loaded, so requiring src here is safe
-		PearlApiError = require('../src/instance').PearlApiError
+		EncoderApiError = require('../src/instance').EncoderApiError
 		assert.equal(instance.currentStatus, InstanceStatus.Ok)
 	})
 
@@ -85,12 +85,12 @@ describe('request layer', () => {
 		assert.equal(mock.requests[2].headers['content-type'], undefined)
 	})
 
-	it('404 on a non-optional request throws PearlApiError and keeps the status Ok', async () => {
+	it('404 on a non-optional request throws EncoderApiError and keeps the status Ok', async () => {
 		instance.calls.log.length = 0
 		instance.calls.status.length = 0
 		await assert.rejects(instance.request('GET', '/channels/99/name'), (err) => {
-			assert.ok(err instanceof PearlApiError)
-			assert.equal(err.name, 'PearlApiError')
+			assert.ok(err instanceof EncoderApiError)
+			assert.equal(err.name, 'EncoderApiError')
 			assert.equal(err.status, 404)
 			assert.equal(err.apiStatus, 'notfound')
 			assert.equal(err.method, 'GET')
@@ -103,12 +103,12 @@ describe('request layer', () => {
 		assert.equal(instance.calls.log.filter((l) => l.level === 'error').length, 1)
 	})
 
-	it('an HTTP 200 with a failing envelope throws PearlApiError and keeps the status Ok', async () => {
+	it('an HTTP 200 with a failing envelope throws EncoderApiError and keeps the status Ok', async () => {
 		instance.calls.log.length = 0
 		instance.calls.status.length = 0
 		await assert.rejects(instance.request('PUT', '/channels/1/name', { query: { softFail: true } }), (err) => {
-			assert.ok(err instanceof PearlApiError)
-			assert.equal(err.name, 'PearlApiError')
+			assert.ok(err instanceof EncoderApiError)
+			assert.equal(err.name, 'EncoderApiError')
 			assert.equal(err.status, 200)
 			assert.equal(err.apiStatus, 'error')
 			assert.equal(err.method, 'PUT')
@@ -142,7 +142,7 @@ describe('request layer', () => {
 		})
 	})
 
-	it('a 409 from the device is a PearlApiError with the device message', async () => {
+	it('a 409 from the device is a EncoderApiError with the device message', async () => {
 		await assert.rejects(instance.request('POST', '/channels/2/bookmarks', { query: { text: 'x' } }), (err) => {
 			assert.equal(err.status, 409)
 			assert.equal(err.apiStatus, 'conflict')
@@ -175,7 +175,7 @@ describe('request layer', () => {
 		try {
 			const started = Date.now()
 			await assert.rejects(instance.request('GET', '/channels', { timeout: 300 }), (err) => {
-				assert.ok(err instanceof PearlApiError)
+				assert.ok(err instanceof EncoderApiError)
 				assert.equal(err.status, 0)
 				assert.match(err.message, /timed out after 300 ms/)
 				return true
@@ -295,7 +295,7 @@ describe('HTTPS with a self-signed certificate', () => {
 		mock.reset()
 		const instance = await createInstance({ mock, config: { use_https: true, accept_self_signed: false } })
 		try {
-			const { PearlApiError } = require('../src/instance')
+			const { EncoderApiError } = require('../src/instance')
 			assert.equal(instance.currentStatus, InstanceStatus.ConnectionFailure)
 			assert.equal(mock.requests.length, 0, 'the TLS handshake fails before any request is served')
 			assert.equal(Object.keys(instance.state.channels).length, 0)
@@ -310,7 +310,7 @@ describe('HTTPS with a self-signed certificate', () => {
 			// only the module's own error class leaves the request layer
 			await assert.rejects(instance.request('GET', '/channels'), (err) => {
 				assert.ok(
-					err instanceof PearlApiError,
+					err instanceof EncoderApiError,
 					`unexpected error type ${err?.constructor?.name}: ${err?.message}`,
 				)
 				assert.equal(err.status, 0)
